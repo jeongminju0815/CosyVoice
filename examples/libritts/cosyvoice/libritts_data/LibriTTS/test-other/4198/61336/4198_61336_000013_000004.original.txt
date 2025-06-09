@@ -1,1 +1,0 @@
-And Judah was put to the worse before Israel; and they fled every man to their tents.
