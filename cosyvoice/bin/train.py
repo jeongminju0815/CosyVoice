@@ -94,7 +94,7 @@ def main():
                         format='%(asctime)s %(levelname)s %(message)s')
     # gan train has some special initialization logic
     gan = True if args.model == 'hifigan' else False
-
+    print("gan ", gan)
     override_dict = {k: None for k in ['llm', 'flow', 'hift', 'hifigan'] if k != args.model}
     if gan is True:
         override_dict.pop('hift')
@@ -126,6 +126,7 @@ def main():
     start_step, start_epoch = 0, -1
     if args.checkpoint is not None:
         if os.path.exists(args.checkpoint):
+            print("checkpoint load!")
             state_dict = torch.load(args.checkpoint, map_location='cpu')
             model.load_state_dict(state_dict, strict=False)
             if 'step' in state_dict:

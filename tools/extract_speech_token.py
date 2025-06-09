@@ -24,7 +24,9 @@ import whisper
 
 
 def single_job(utt):
-    audio, sample_rate = torchaudio.load(utt2wav[utt], backend='soundfile')
+    torchaudio.set_audio_backend('soundfile')
+    audio, sample_rate = torchaudio.load(utt2wav[utt])
+    # audio, sample_rate = torchaudio.load(utt2wav[utt], backend='soundfile')
     if sample_rate != 16000:
         audio = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=16000)(audio)
     # Convert audio to mono

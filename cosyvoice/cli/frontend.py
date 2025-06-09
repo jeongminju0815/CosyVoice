@@ -34,7 +34,7 @@ except ImportError:
     use_ttsfrd = False
 from cosyvoice.utils.file_utils import logging
 from cosyvoice.utils.frontend_utils import contains_chinese, replace_blank, replace_corner_mark, remove_bracket, spell_out_number, split_paragraph, is_only_punctuation
-
+from cosyvoice.text.korean import normalize
 
 class CosyVoiceFrontEnd:
 
@@ -125,6 +125,8 @@ class CosyVoiceFrontEnd:
         if text_frontend is False or text == '':
             return [text] if split is True else text
         text = text.strip()
+        spk = text.split("<|endofprompt|>")[0]
+        text = text.split("<|endofprompt|>")[1]
         if self.use_ttsfrd:
             texts = [i["text"] for i in json.loads(self.frd.do_voicegen_frd(text))["sentences"]]
             text = ''.join(texts)
@@ -145,8 +147,17 @@ class CosyVoiceFrontEnd:
                 text = spell_out_number(text, self.inflect_parser)
                 texts = list(split_paragraph(text, partial(self.tokenizer.encode, allowed_special=self.allowed_special), "en", token_max_n=80,
                                              token_min_n=60, merge_len=20, comma_split=False))
+                texts[0] = spk + "<|endofprompt|>" + texts[0]
         texts = [i for i in texts if not is_only_punctuation(i)]
         return texts if split is True else text
+
+    # def text_normalize(self, text, split=True, text_frontend=True):
+    #     _text = text.split("<|endofprompt|>")[1]
+    #     _text = normalize(_text)
+    #     text = text.split("<|endofprompt|>")[0] + "<|endofprompt|>" + _text
+    #     print('normalize:', text)
+    #     return [text]
+
 
     def frontend_sft(self, tts_text, spk_id):
         tts_text_token, tts_text_token_len = self._extract_text_token(tts_text)

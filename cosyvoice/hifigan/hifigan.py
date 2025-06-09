@@ -45,6 +45,7 @@ class HiFiGan(nn.Module):
         else:
             loss_tpr = torch.zeros(1).to(device)
         loss_f0 = F.l1_loss(generated_f0, pitch_feat)
+        loss_f0 = loss_f0 * 0.05
         loss = loss_gen + self.feat_match_loss_weight * loss_fm + \
             self.multi_mel_spectral_recon_loss_weight * loss_mel + \
             self.tpr_loss_weight * loss_tpr + loss_f0

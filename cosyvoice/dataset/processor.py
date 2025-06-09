@@ -159,6 +159,7 @@ def truncate(data, truncate_length=24576, mode='train'):
 
 def compute_fbank(data,
                   feat_extractor,
+                  token_mel_ratio=0,
                   mode='train'):
     """ Extract fbank
 
@@ -174,8 +175,13 @@ def compute_fbank(data,
         assert 'utt' in sample
         assert 'text_token' in sample
         waveform = sample['speech']
-        mat = feat_extractor(waveform).squeeze(dim=0).transpose(0, 1)
-        sample['speech_feat'] = mat
+        feat = feat_extractor(waveform).squeeze(dim=0).transpose(0, 1)
+        if token_mel_ratio != 0:
+            # trim to align speech_token and speech_feat
+            token_len = int(min(feat.shape[0] / token_mel_ratio, sample["speech_token"].shape[0]))
+            feat = feat[:token_mel_ratio * token_len]
+            sample["speech_token"] = sample["speech_token"][:token_len]
+        sample['speech_feat'] = feat
         yield sample
 
 
@@ -197,7 +203,8 @@ def compute_f0(data, sample_rate, hop_size, mode='train'):
         waveform = sample['speech']
         _f0, t = pw.harvest(waveform.squeeze(dim=0).numpy().astype('double'), sample_rate, frame_period=frame_period)
         if sum(_f0 != 0) < 5:  # this happens when the algorithm fails
-            _f0, t = pw.dio(waveform.squeeze(dim=0).numpy().astype('double'), sample_rate, frame_period=frame_period)  # if harvest fails, try dio
+            continue
+            #_f0, t = pw.dio(waveform.squeeze(dim=0).numpy().astype('double'), sample_rate, frame_period=frame_period)  # if harvest fails, try dio
         f0 = pw.stonemask(waveform.squeeze(dim=0).numpy().astype('double'), _f0, t, sample_rate)
         f0 = F.interpolate(torch.from_numpy(f0).view(1, 1, -1), size=sample['speech_feat'].shape[0], mode='linear').view(-1)
         sample['pitch_feat'] = f0

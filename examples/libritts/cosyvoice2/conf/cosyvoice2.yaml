@@ -60,10 +60,10 @@ flow: !new:cosyvoice.flow.flow.CausalMaskedDiffWithXvec
         input_size: 512
         use_cnn_module: False
         macaron_style: False
-        static_chunk_size: !ref <chunk_size>
+        static_chunk_size: 50 #!ref <chunk_size>
     decoder: !new:cosyvoice.flow.flow_matching.CausalConditionalCFM
         in_channels: 240
-        n_spks: 1
+        n_spks: 1069
         spk_emb_dim: 80
         cfm_params: !new:omegaconf.DictConfig
             content:
@@ -216,17 +216,42 @@ train_conf:
     log_interval: 100
     save_per_step: -1
 
+# # gan train conf
+# train_conf_gan:
+#     optim: adam
+#     optim_conf:
+#         lr: 0.0002 # use small lr for gan training
+#     scheduler: constantlr
+#     optim_d: adam
+#     optim_conf_d:
+#         lr: 0.0002 # use small lr for gan training
+#     scheduler_d: constantlr
+#     max_epoch: 200
+#     grad_clip: 5
+#     accum_grad: 1 # in gan training, accum_grad must be 1
+#     log_interval: 100
+#     save_per_step: -1
 # gan train conf
 train_conf_gan:
     optim: adam
     optim_conf:
-        lr: 0.0002 # use small lr for gan training
-    scheduler: constantlr
+        lr: 1e-5 # use small lr for gan training, NOTE(deyituo): I set as 1e-5 for reused generator's weights, if from scratch, set as 0.0002
+    scheduler: NoamHoldAnnealing
+    scheduler_conf:
+        decay_rate: 0.999
+        min_lr: 1e-5    
+        warmup_steps: 2500
+        max_steps: 800000
     optim_d: adam
     optim_conf_d:
         lr: 0.0002 # use small lr for gan training
-    scheduler_d: constantlr
-    max_epoch: 200
+    scheduler_d: NoamHoldAnnealing
+    scheduler_d_conf:
+        decay_rate: 0.999
+        min_lr: 1e-5
+        warmup_steps: 2500
+        max_steps: 800000
+    max_epoch: 1000
     grad_clip: 5
     accum_grad: 1 # in gan training, accum_grad must be 1
     log_interval: 100
