@@ -227,10 +227,35 @@ class CausalAttention(Attention):
         processor: Optional["AttnProcessor2_0"] = None,
         out_dim: int = None,
     ):
-        super(CausalAttention, self).__init__(query_dim, cross_attention_dim, heads, dim_head, dropout, bias, upcast_attention, upcast_softmax,
-                                              cross_attention_norm, cross_attention_norm_num_groups, qk_norm, added_kv_proj_dim, norm_num_groups,
-                                              spatial_norm_dim, out_bias, scale_qk, only_cross_attention, eps, rescale_output_factor, residual_connection,
-                                              _from_deprecated_attn_block, processor, out_dim)
+        # super(CausalAttention, self).__init__(query_dim, cross_attention_dim, heads, dim_head, dropout, bias, upcast_attention, upcast_softmax,
+        #                                       cross_attention_norm, cross_attention_norm_num_groups, qk_norm, added_kv_proj_dim, norm_num_groups,
+        #                                       spatial_norm_dim, out_bias, scale_qk, only_cross_attention, eps, rescale_output_factor, residual_connection,
+        #                                       _from_deprecated_attn_block, processor, out_dim)
+        super().__init__(
+            query_dim=query_dim,
+            cross_attention_dim=cross_attention_dim,
+            heads=heads,
+            dim_head=dim_head,
+            dropout=dropout,
+            bias=bias,
+            upcast_attention=upcast_attention,
+            upcast_softmax=upcast_softmax,
+            cross_attention_norm=cross_attention_norm,
+            cross_attention_norm_num_groups=cross_attention_norm_num_groups,
+            # qk_norm=qk_norm,
+            added_kv_proj_dim=added_kv_proj_dim,
+            norm_num_groups=norm_num_groups,
+            spatial_norm_dim=spatial_norm_dim,
+            out_bias=out_bias,
+            scale_qk=scale_qk,
+            only_cross_attention=only_cross_attention,
+            eps=eps,
+            rescale_output_factor=rescale_output_factor,
+            residual_connection=residual_connection,
+            _from_deprecated_attn_block=_from_deprecated_attn_block,
+            processor=processor,  # 이미 부모 클래스에서 처리하는 부분이므로 수정할 필요 없음
+        )
+        
         processor = CausalAttnProcessor2_0()
         self.set_processor(processor)
 

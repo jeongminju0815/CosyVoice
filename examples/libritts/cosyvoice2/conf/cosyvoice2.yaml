@@ -63,7 +63,7 @@ flow: !new:cosyvoice.flow.flow.CausalMaskedDiffWithXvec
         static_chunk_size: !ref <chunk_size>
     decoder: !new:cosyvoice.flow.flow_matching.CausalConditionalCFM
         in_channels: 240
-        n_spks: 1
+        n_spks: 1069
         spk_emb_dim: 80
         cfm_params: !new:omegaconf.DictConfig
             content:
