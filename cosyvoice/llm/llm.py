@@ -164,8 +164,15 @@ class TransformerLM(torch.nn.Module):
             max_token_text_ratio: float = 20,
             min_token_text_ratio: float = 2,
     ) -> Generator[torch.Tensor, None, None]:
-        if self.fp16 is True:
-            embedding = embedding.half()
+        # print("text dtype:", text.dtype)
+        # print("text_len dtype:", text_len.dtype)
+        # print("prompt_text dtype:", prompt_text.dtype)
+        # print("prompt_text_len dtype:", prompt_text_len.dtype)
+        # print("prompt_speech_token dtype:", prompt_speech_token.dtype)
+        # print("prompt_speech_token_len dtype:", prompt_speech_token_len.dtype)
+        # print("embedding dtype:", embedding.dtype)
+        # if self.fp16 is True:
+        #     embedding = embedding.half()
 
         device = text.device
         text = torch.concat([prompt_text, text], dim=1)
@@ -178,7 +185,9 @@ class TransformerLM(torch.nn.Module):
         # 2. encode embedding
         if embedding.shape[0] != 0:
             embedding = F.normalize(embedding, dim=1)
+            #print("embedding dtype after normalize:", embedding.dtype)  # 추가 확인
             embedding = self.spk_embed_affine_layer(embedding)
+            #print("embedding dtype after affine layer:", embedding.dtype)  # 추가 확인
             embedding = embedding.unsqueeze(dim=1)
         else:
             embedding = torch.zeros(1, 0, self.llm_input_size, dtype=text.dtype).to(device).to(text.dtype)

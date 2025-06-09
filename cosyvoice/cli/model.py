@@ -19,6 +19,8 @@ from torch.nn import functional as F
 from contextlib import nullcontext
 import uuid
 from cosyvoice.utils.common import fade_in_out
+import os
+from cosyvoice.utils.file_utils import convert_onnx_to_trt
 
 
 class CosyVoiceModel:
@@ -61,9 +63,11 @@ class CosyVoiceModel:
         self.hift_cache_dict = {}
 
     def load(self, llm_model, flow_model, hift_model):
-        self.llm.load_state_dict(torch.load(llm_model, map_location=self.device), strict=True)
+        #self.llm.load_state_dict(torch.load(llm_model, map_location=self.device), strict=True)
+        self.llm.load_state_dict(torch.load(llm_model, map_location=self.device), strict=False)
         self.llm.to(self.device).eval()
-        self.flow.load_state_dict(torch.load(flow_model, map_location=self.device), strict=True)
+        # self.flow.load_state_dict(torch.load(flow_model, map_location=self.device), strict=True)
+        self.flow.load_state_dict(torch.load(flow_model, map_location=self.device), strict=False)
         self.flow.to(self.device).eval()
         # in case hift_model is a hifigan model
         hift_state_dict = {k.replace('generator.', ''): v for k, v in torch.load(hift_model, map_location=self.device).items()}
@@ -81,7 +85,10 @@ class CosyVoiceModel:
         flow_encoder = torch.jit.load(flow_encoder_model, map_location=self.device)
         self.flow.encoder = flow_encoder
 
-    def load_trt(self, flow_decoder_estimator_model):
+    def load_trt(self, flow_decoder_estimator_model, flow_decoder_onnx_model, fp16):
+        assert torch.cuda.is_available(), 'tensorrt only supports gpu!'
+        if not os.path.exists(flow_decoder_estimator_model):
+            convert_onnx_to_trt(flow_decoder_estimator_model, flow_decoder_onnx_model, fp16)
         del self.flow.decoder.estimator
         import tensorrt as trt
         with open(flow_decoder_estimator_model, 'rb') as f:

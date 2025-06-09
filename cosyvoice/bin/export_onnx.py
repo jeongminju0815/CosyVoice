@@ -76,7 +76,7 @@ def main():
         (x, mask, mu, t, spks, cond),
         '{}/flow.decoder.estimator.fp32.onnx'.format(args.model_dir),
         export_params=True,
-        opset_version=18,
+        opset_version=17,
         do_constant_folding=True,
         input_names=['x', 'mask', 'mu', 't', 'spks', 'cond'],
         output_names=['estimator_out'],

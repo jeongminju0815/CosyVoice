@@ -71,9 +71,16 @@ class CosyVoiceFrontEnd:
             self.inflect_parser = inflect.engine()
 
     def _extract_text_token(self, text):
+        text = text.replace("。", ". ")
+        print("update!", text)
         text_token = self.tokenizer.encode(text, allowed_special=self.allowed_special)
+        print(len(text_token))
+        #print("decode!")
+        #print(self.tokenizer.decode(text_token))
+        
         text_token = torch.tensor([text_token], dtype=torch.int32).to(self.device)
         text_token_len = torch.tensor([text_token.shape[1]], dtype=torch.int32).to(self.device)
+        
         return text_token, text_token_len
 
     def _extract_speech_token(self, speech):
@@ -134,6 +141,7 @@ class CosyVoiceFrontEnd:
 
     def frontend_sft(self, tts_text, spk_id):
         tts_text_token, tts_text_token_len = self._extract_text_token(tts_text)
+        #print("tts_text_token_len", tts_text_token_len)
         embedding = self.spk2info[spk_id]['embedding']
         model_input = {'text': tts_text_token, 'text_len': tts_text_token_len, 'llm_embedding': embedding, 'flow_embedding': embedding}
         return model_input

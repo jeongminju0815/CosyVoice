@@ -38,6 +38,7 @@ def single_job(utt):
 
 
 def main(args):
+    print("start!")
     all_task = [executor.submit(single_job, utt) for utt in utt2wav.keys()]
     utt2speech_token = {}
     for future in tqdm(as_completed(all_task)):

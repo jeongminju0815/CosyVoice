@@ -117,6 +117,8 @@ class ConditionalDecoder(nn.Module):
         self.down_blocks = nn.ModuleList([])
         self.mid_blocks = nn.ModuleList([])
         self.up_blocks = nn.ModuleList([])
+        # print(self.static_chunk_size)
+        self.static_chunk_size=100 # 250114 update
 
         output_channel = in_channels
         for i in range(len(channels)):  # pylint: disable=consider-using-enumerate

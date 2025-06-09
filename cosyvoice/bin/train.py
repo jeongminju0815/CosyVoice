@@ -35,6 +35,8 @@ from cosyvoice.utils.train_utils import (
     init_summarywriter, save_model,
     wrap_cuda_model, check_modify_and_save_config)
 
+from setproctitle import setproctitle
+
 
 def get_args():
     parser = argparse.ArgumentParser(description='training your network')
@@ -88,6 +90,7 @@ def get_args():
 
 @record
 def main():
+    setproctitle("250115-llm-neutral")
     args = get_args()
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(levelname)s %(message)s')
